@@ -11,10 +11,16 @@ This is a simple Flask-based chatbot application that interacts with the OpenAI 
 ## Setup
 
 1. Clone the repository:
+
 2. Install dependencies:
+
 pip install
+
 3.Set up the SQLite database:
+
 python init_db.py
+
 4. Run the app
+
 python app.py
 
