@@ -38,12 +38,6 @@ def send_message():
     data = request.json
     user_message = data['message']
 
-    # Store user message in database
-    db = get_db()
-    cursor = db.cursor()
-    cursor.execute("INSERT INTO chats (message) VALUES (?)", (user_message,))
-    db.commit()
-
     # Get response from OpenAI
     response = client.chat.completions.create(
         messages=[{"role": "system", "content": user_message}],
@@ -51,23 +45,21 @@ def send_message():
         max_tokens=50
     )
 
-    # Extract chatbot's response
-    chatbot_response = response.choices[0].message
+    # Extract chatbot's response content
+    chatbot_response_content = response.choices[0].message.content
 
-    # Convert chatbot_response to string and handle any potential errors
-    try:
-        chatbot_response_str = str(chatbot_response)
-    except Exception as e:
-        chatbot_response_str = str(e)
-
-    # Store chatbot response in database
-    cursor.execute("INSERT INTO chats (message) VALUES (?)", (chatbot_response_str,))
+    # Store user message and chatbot response as a single chat entry
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute("INSERT INTO chats (message) VALUES (?)", (user_message,))
+    cursor.execute("INSERT INTO chats (message) VALUES (?)", (chatbot_response_content,))
     db.commit()
 
     # Create a JSON-serializable response
-    response_data = {"message": chatbot_response_str}
+    response_data = {"message": chatbot_response_content}
 
     return jsonify(response_data)
+
 
 
 
